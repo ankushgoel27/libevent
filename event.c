@@ -96,6 +96,9 @@ extern const struct eventop kqops;
 #ifdef EVENT__HAVE_DEVPOLL
 extern const struct eventop devpollops;
 #endif
+#ifdef EVENT__HAVE_WEPOLL
+extern const struct eventop wepollops;
+#endif
 #ifdef _WIN32
 extern const struct eventop win32ops;
 #endif
@@ -122,6 +125,9 @@ static const struct eventop *eventops[] = {
 #endif
 #ifdef _WIN32
 	&win32ops,
+#endif
+#ifdef EVENT__HAVE_WEPOLL
+	&wepollops,
 #endif
 	NULL
 };
@@ -2090,6 +2096,9 @@ event_base_once(struct event_base *base, evutil_socket_t fd, short events,
 	struct event_once *eonce;
 	int res = 0;
 	int activate = 0;
+
+	if (!base)
+		return (-1);
 
 	/* We cannot support signals that just fire once, or persistent
 	 * events. */

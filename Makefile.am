@@ -113,8 +113,6 @@ CMAKE_FILES = \
 	cmake/CheckConstExists.cmake \
 	cmake/CheckFileOffsetBits.c \
 	cmake/CheckFileOffsetBits.cmake \
-	cmake/CheckFunctionExistsEx.c \
-	cmake/CheckFunctionExistsEx.cmake \
 	cmake/CheckFunctionKeywords.cmake \
 	cmake/CheckPrototypeDefinition.c.in \
 	cmake/CheckPrototypeDefinition.cmake \
@@ -122,13 +120,12 @@ CMAKE_FILES = \
 	cmake/CodeCoverage.cmake \
 	cmake/COPYING-CMAKE-SCRIPTS \
 	cmake/Copyright.txt \
-	cmake/FindGit.cmake \
-	cmake/LibeventConfigBuildTree.cmake.in \
 	cmake/LibeventConfig.cmake.in \
 	cmake/LibeventConfigVersion.cmake.in \
-	cmake/VersionViaGit.cmake \
+	cmake/Macros.cmake \
 	cmake/Uninstall.cmake.in \
 	cmake/UseDoxygen.cmake \
+	cmake/VersionViaGit.cmake \
 	event-config.h.cmake \
 	evconfig-private.h.cmake \
 	CMakeLists.txt
@@ -221,6 +218,10 @@ SYS_SRC += epoll.c
 endif
 if EVPORT_BACKEND
 SYS_SRC += evport.c
+endif
+if WEPOLL_BACKEND
+SYS_SRC += epoll.c
+SYS_SRC += wepoll.c
 endif
 if SIGNAL_SUPPORT
 SYS_SRC += signal.c
@@ -325,7 +326,8 @@ noinst_HEADERS +=				\
 	strlcpy-internal.h			\
 	time-internal.h				\
 	util-internal.h				\
-	openssl-compat.h
+	openssl-compat.h			\
+	wepoll.h
 
 EVENT1_HDRS = \
 	include/evdns.h \

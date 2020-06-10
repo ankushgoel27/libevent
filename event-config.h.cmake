@@ -102,6 +102,9 @@
 /* Define to 1 if you have the `epoll_ctl' function. */
 #cmakedefine EVENT__HAVE_EPOLL_CTL 1
 
+/* Define if your system supports the wepoll module */
+#cmakedefine EVENT__HAVE_WEPOLL 1
+
 /* Define to 1 if you have the `eventfd' function. */
 #cmakedefine EVENT__HAVE_EVENTFD 1
 
@@ -177,6 +180,9 @@
 
 /* Define to 1 if you have the <mach/mach_time.h> header file. */
 #cmakedefine EVENT__HAVE_MACH_MACH_TIME_H 1
+
+/* Define to 1 if you have the <mach/mach.h> header file. */
+#cmakedefine EVENT__HAVE_MACH_MACH_H 1
 
 /* Define to 1 if you have the <memory.h> header file. */
 #cmakedefine EVENT__HAVE_MEMORY_H 1
@@ -273,9 +279,6 @@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #cmakedefine EVENT__HAVE_STDLIB_H 1
-
-/* Define to 1 if you have the <strings.h> header file. */
-#cmakedefine EVENT__HAVE_STRINGS_H 1
 
 /* Define to 1 if you have the <string.h> header file. */
 #cmakedefine EVENT__HAVE_STRING_H 1

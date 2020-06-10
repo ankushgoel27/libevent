@@ -222,6 +222,7 @@ AC_CHECK_HEADERS([ \
   fcntl.h \
   ifaddrs.h \
   mach/mach_time.h \
+  mach/mach.h \
   netdb.h \
   netinet/in.h \
   netinet/in6.h \
@@ -250,6 +251,7 @@ AC_CHECK_HEADERS([ \
   sys/wait.h \
   sys/random.h \
   errno.h \
+  afunix.h \
 ])
 
 case "${host_os}" in
@@ -346,7 +348,7 @@ AM_CONDITIONAL(BUILD_MIDIPIX, test x$midipix = xtrue)
 AM_CONDITIONAL(BUILD_WITH_NO_UNDEFINED, test x$bwin32 = xtrue || test x$cygwin = xtrue || test x$midipix = xtrue)
 
 if test x$bwin32 = xtrue; then
-   AC_SEARCH_LIBS([getservbyname],[ws2_32])
+  AC_HAVE_LIBRARY([ws2_32])
 fi
 
 dnl Checks for typedefs, structures, and compiler characteristics.
@@ -366,11 +368,7 @@ AC_CHECK_FUNCS([ \
   getegid \
   geteuid \
   getifaddrs \
-  getnameinfo \
-  getprotobynumber \
   gettimeofday \
-  inet_ntop \
-  inet_pton \
   issetugid \
   mach_absolute_time \
   mmap \
@@ -395,17 +393,36 @@ AC_CHECK_FUNCS([ \
   unsetenv \
   usleep \
   vasprintf \
-  getservbyname \
   getrandom \
 ])
 
-AC_CHECK_FUNCS(_gmtime64_s, [have__gmtime64_s=yes], )
-if test "x$have__gmtime64_s" != "xyes"; then
-  AC_CHECK_FUNCS(_gmtime64)
-fi
+AS_IF([test x$bwin32 = xtrue],
+  AC_CHECK_FUNCS(_gmtime64_s, , [AC_CHECK_FUNCS(_gmtime64)])
+)
 
 AM_CONDITIONAL(STRLCPY_IMPL, [test x"$ac_cv_func_strlcpy" = xno])
 
+m4_define([funcstochk],
+  [getnameinfo
+  getprotobynumber
+  getservbyname
+  inet_ntop
+  inet_pton]
+)
+
+AS_IF([test x$bwin32 = xtrue],
+  [AX_CHECK_DECLS_EX([funcstochk getaddrinfo],
+    [#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+    #endif])],
+  [AC_CHECK_FUNCS(m4_normalize(funcstochk))]
+)
+
+m4_undefine([funcstochk])
+
+dnl check getaddrinfo and gethostbyname_r for non-windows
+AS_IF([test x$bwin32 = xfalse], [
 AC_CACHE_CHECK(
     [for getaddrinfo],
     [libevent_cv_getaddrinfo],
@@ -485,6 +502,7 @@ AC_CHECK_FUNC(gethostbyname_r, [
 ])
 
 fi
+]) dnl end of checking getaddrinfo and gethostbyname_r
 
 AC_MSG_CHECKING(for F_SETFD in fcntl.h)
 AC_EGREP_CPP(yes,
@@ -642,10 +660,16 @@ if test "x$haveeventports" = "xyes" ; then
 fi
 AM_CONDITIONAL(EVPORT_BACKEND, [test "x$haveeventports" = "xyes"])
 
+havewepoll=no
 if test "x$bwin32" = "xtrue"; then
 	needsignal=yes
+  if test "x$cygwin" = "xfalse"; then
+    havewepoll=yes
+    AC_DEFINE(HAVE_WEPOLL, 1,
+      [Define if your system supports the wepoll module])
+  fi
 fi
-
+AM_CONDITIONAL(WEPOLL_BACKEND, [test "x$havewepoll" = "xyes"])
 AM_CONDITIONAL(SIGNAL_SUPPORT, [test "x$needsignal" = "xyes"])
 
 AC_TYPE_PID_T
@@ -737,6 +761,9 @@ AC_CHECK_TYPES([struct linger],,,
 [
 #ifdef HAVE_SYS_SOCKET_H
 #include <sys/socket.h>
+#endif
+#ifdef _WIN32
+#include <winsock2.h>
 #endif
 ])
 
