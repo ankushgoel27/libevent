@@ -99,4 +99,4 @@ use and development:
 # 3. ACKNOWLEDGMENTS
 
 The [following people](/CONTRIBUTORS.md) have helped with suggestions, ideas,
-code or fixing bugs.
+code or fixing bugs
